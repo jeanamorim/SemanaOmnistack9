@@ -1,0 +1,736 @@
+yarn create react-app frontend
+
+yarn start
+
+colar a pasta 'assests' na pasta 'src'
+
+Editar o arquivo 'App.js':
+import React from "react";
+import "./App.css";
+
+import logo from "./assets/logo.svg";
+
+function App() {
+  return (
+    <div className="container">
+      <img src={logo} alt="AirCnC" />
+      <div className="content">
+        <p>
+          Ofereca <strong>spots</strong> para programadores e encontre{" "}
+          <strong>talentos</strong> para sua empresa
+        </p>
+
+        <form>
+          <label htmlFor="email">E-MAIL *</label>
+          <input type="email" id="email" placeholder="Seu melhor e-mail" />
+          <button className="btn" type="submit">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+Editar o arquivo 'App.css':
+
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap"); /* fonte roboto */
+
+* {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: #000 url("./assets/background.jpg") no-repeat;
+  background-size: cover; /* cobrir toda a tela */
+  -webkit-font-smoothing: antialiased !important;
+}
+
+body,
+input,
+button {
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.container {
+  margin: 80px auto 0;
+  max-width: 450px;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content {
+  width: 100%;
+  background: #fff;
+  margin-top: 50px;
+  border-radius: 4px;
+  padding: 30px;
+}
+
+.content > p {
+  font-size: 22px;
+  line-height: 30px;
+  margin-bottom: 30px;
+}
+
+.content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.content form label {
+  font-size: 14px;
+  color: #444;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.content form label span {
+  font-weight: normal;
+  color: #999;
+  font-size: 12px;
+}
+
+.content form input {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 45px;
+  padding: 0 15px;
+  font-size: 16px;
+}
+
+.content button.btn {
+  border: 0;
+  border-radius: 2px;
+  width: 100%;
+  height: 42px;
+  padding: 0 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #f05a5b;
+  color: #fff;
+  cursor: pointer;
+}
+
+.content button.btn:hover {
+  background: #e14f50;
+}
+
+
+// ------------------------------------------------------
+
+yarn add axios
+Na 'src' criar uma pasta 'services' e dentro 'api.js':
+
+'api.js':
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:3333"
+});
+
+export default api;
+
+// ------------------------------------------------------
+
+Erro no CORS (protege o nosso backend, de ser acessado de lugares que nao queremos que seja acesado)
+Como impedir? Ja ajeitei isso no back end
+
+Importar a api dentro do 'App.js'
+fazer a funcao handleSubmit e colocar dentro do form onSubmit={handleSubmit}
+buscar na api entre outros.
+
+import React, { useState } from "react";
+import api from "./services/api";
+import "./App.css";
+
+import logo from "./assets/logo.svg";
+
+function App() {
+  const [email, setEmail] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const response = await api.post("/sessions", {
+      email
+    }); // chamada a api
+
+    const { _id } = response.data; // buscando somente o _id da api
+
+    localStorage.setItem("user", _id); // Salvar no localStorage, o id do usuario que foi pego na api
+  }
+
+  return (
+    <div className="container">
+      <img src={logo} alt="AirCnC" />
+      <div className="content">
+        <p>
+          Ofereca <strong>spots</strong> para programadores e encontre{" "}
+          <strong>talentos</strong> para sua empresa
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">E-MAIL *</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Seu melhor e-mail"
+            value={email}
+            onChange={event => setEmail(event.target.value)}
+          />
+          <button className="btn" type="submit">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+// ------------------------------------------------------
+
+Navegacao entre aas paginas
+
+yarn add react-router-dom
+
+// ---------------------------------------------------
+
+Na 'src' criar a pasta 'pages'
+E dentro criar 3 pastas 'Dashboard', 'Login', 'New' e cada uma com 'index.js'
+
+import React from "react";
+
+export default function Dashboard() {
+  return <div />;
+}
+
+// ---------------------------------------------------
+
+Na 'src' criar o arquivo 'routes.js';
+
+'routes.js':
+import React from "react";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import New from "./pages/New";
+
+export default function Routes() {
+  return (
+    <BrowserRouter>
+      <Switch>
+        <Route path="/" exact component={Login} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/new" component={New} />
+      </Switch>
+    </BrowserRouter>
+  );
+}
+
+// Switch - Apenas uma rota por vez
+
+// ---------------------------------------------------
+
+Ir no 'App.js' importar aas rotas
+E colocar dentro do content
+
+e tirar do p ate o form e pegar tudo isso e colocar no 'index.js' da pasta Login
+
+e do const [email, setEmail] ate o localStorage, colocar no 'index.js' tambem, mas fora do return, colocar em cima
+
+// ---------------------------------------------------
+
+'App.js':
+import React from "react";
+
+import "./App.css";
+
+import Routes from "./routes";
+
+import logo from "./assets/logo.svg";
+
+function App() {
+  return (
+    <div className="container">
+      <img src={logo} alt="AirCnC" />
+      <div className="content">
+        <Routes />
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+// ---------------------------------------------------
+'index.js' da 'Login':
+import React, { useState } from "react";
+
+import api from "../../services/api";
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const response = await api.post("/sessions", {
+      email
+    }); // chamada a api
+
+    const { _id } = response.data; // buscando somente o _id da api
+
+    localStorage.setItem("user", _id); // Salvar no localStorage, o id do usuario que foi pego na api
+  }
+
+  return (
+    <>
+      <p>
+        Ofereca <strong>spots</strong> para programadores e encontre{" "}
+        <strong>talentos</strong> para sua empresa
+      </p>
+
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="email">E-MAIL *</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Seu melhor e-mail"
+          value={email}
+          onChange={event => setEmail(event.target.value)}
+        />
+        <button className="btn" type="submit">
+          Entrar
+        </button>
+      </form>
+    </>
+  );
+}
+
+// ---------------------------------------------------
+
+Quando clicar mudar de pagina
+
+history - passado como parametro da pagina
+history.push('') - serve para fazer a navegacao
+
+// ---------------------------------------------------
+
+Fazer alteracao no backend para poder recuperar a imagem
+Criar a rota files e etc
+
+Criacao da pagina Dashboard
+carregar a lista de spots
+
+'index.js' da pasta 'Dashboard':
+import React, { useEffect, useState } from "react";
+import api from "../../services/api";
+
+import "./styles.css";
+
+export default function Dashboard() {
+  const [spots, setSpots] = useState([]); // Vai armazenar todos os spots que receber do response.data
+
+  // Ele vai executar quando uma variavel sofrer alteracao, quando o [] estiver vazio, so vai executar uma vez
+  // A rota dashboard precisa do user_id, entao busca no localStorage, e passa para o header o user_id
+  useEffect(() => {
+    async function loadSpots() {
+      const user_id = localStorage.getItem("user");
+      const response = await api.get("/dashboard", {
+        headers: {
+          user_id
+        }
+      });
+      setSpots(response.data); // Vai armazenar todos os spots que receber do response.data
+    }
+
+    loadSpots();
+  }, []);
+
+  // O map vai percorrer todo array que veio do response.data
+  return (
+    <>
+      <ul className="spot-list">
+        {spots.map(spot => (
+          <li key={spot._id}>
+            <header style={{ backgroundImage: `url(${spot.thumbnail_url})` }} />
+            <strong>{spot.company}</strong>
+            <span>{spot.price}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+
+// ---------------------------------------------------
+
+Na pasta 'Dashboard' criar o arquivo 'styles.css'
+Para estilizar a pagina
+
+ul.spot-list {
+  width: 100%;
+  list-style: none;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  margin-bottom: 30px;
+}
+
+ul.spot-list li {
+  display: flex;
+  flex-direction: column;
+}
+
+ul.spot-list li header {
+  width: 100%;
+  height: 120px;
+  background-size: cover;
+  border-radius: 4px;
+}
+
+ul.spot-list li strong {
+  margin-top: 10px;
+  font-size: 24px;
+  color: #444;
+}
+
+ul.spot-list li span {
+  font-size: 15px;
+  color: #999;
+}
+
+
+// ---------------------------------------------------
+
+Fazer uma verificacao ser eh gratuito ou nao
+<span>{spot.price ? `R$${spot.price}/dia` : "GRATUITO"}</span>
+
+// ---------------------------------------------------
+
+Fazer o botao que vai navegar o usuario para o rota de criacao de um spot
+
+No 'index.js' da 'Dashboard'
+import { Link } from "react-router-dom";
+
+
+depois da ul
+colocar a classe btn pro botao ficar estilizado
+<Link to={"/new"}>
+  <button className="btn">Cadastrar novo spot</button>
+</Link>
+
+// ---------------------------------------------------
+
+Pagina New - Fazer criacao de spot
+
+Em 'index.js' da pasta 'New':
+
+Colocar a thumbnail:
+import React, { useState } from "react";
+
+import camera from "../../assets/camera.svg";
+
+export default function New() {
+  const [company, setCompany] = useState("");
+  const [techs, setTechs] = useState("");
+  const [price, setPrice] = useState("");
+
+  function handleSubmit() {}
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label id="thumbnail">
+        <input type="file" />
+        <img src={camera} alt="Select img" />
+      </label>
+
+      <label htmlFor="company">EMPRESA *</label>
+      <input
+        id="company"
+        placeholder="Sua empresa incrivel"
+        value={company}
+        onChange={event => setCompany(event.target.value)}
+      />
+
+      <label htmlFor="company">
+        TECNOLOGIAS * <span>(separadas por virgula)</span>
+      </label>
+      <input
+        id="techs"
+        placeholder="Quais tecnologias usam?"
+        value={techs}
+        onChange={event => setTechs(event.target.value)}
+      />
+
+      <label htmlFor="price">
+        VALOR DA DIARIA * <span>(em branco para gratuito)</span>
+      </label>
+      <input
+        id="price"
+        placeholder="Valor cobrado por dia"
+        value={price}
+        onChange={event => setPrice(event.target.value)}
+      />
+
+      <button type="submit" className="btn">
+        Cadastrar
+      </button>
+    </form>
+  );
+}
+
+// -----------------------------------------------------------------
+
+Criar 'styles.css' na pasta 'New':
+
+'styles.css':
+label#thumbnail {
+  margin-bottom: 20px;
+  border: 1px dashed #ddd;
+  background-size: cover;
+  cursor: pointer;
+  height: 160px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+label#thumbnail input {
+  display: none;
+}
+
+
+
+importar o 'styles.css' do 'index.js':
+import React, { useState } from "react";
+
+import camera from "../../assets/camera.svg";
+
+import "./styles.css";
+
+// -----------------------------------------------------------------
+
+Fazer um preview da imagem
+
+'index.js' da pasta 'New'
+
+import React, { useState, useMemo } from "react";
+
+import camera from "../../assets/camera.svg";
+
+import "./styles.css";
+
+export default function New() {
+  const [thumbnail, setThumbnail] = useState(null);
+  const [company, setCompany] = useState("");
+  const [techs, setTechs] = useState("");
+  const [price, setPrice] = useState("");
+
+  // Toda vez que a imagem da preview mudar, vai usar o useMemo, porque ele remonta sempre quando recebe um novo valor na variavel
+  const preview = useMemo(() => {
+    return thumbnail ? URL.createObjectURL(thumbnail) : null; // Vai criar uma url pra uma variavel temporaria, para a imagem
+  }, [thumbnail]);
+
+  function handleSubmit() {}
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label
+        id="thumbnail"
+        style={{ backgroundImage: `url(${preview})` }}
+        className={thumbnail ? "has-thumbnail" : ""} // Classe condicional, a condicao vai estar no css, Se tiver uma thumbnail, vai tirar a borda e tirar a img da camera.
+      >
+        <input
+          type="file"
+          onChange={event => setThumbnail(event.target.files[0])} // Quando colocar um arquivo aqui, ele vai para o thumbnail, ai o preview vai ver se existe uma thumnail, e vai montar uma url temporaria para essa thumbnail, e colocar o preview como background do label, o input ta dentro do label entao vai ficar tudo junto
+        />
+        <img src={camera} alt="Select img" />
+      </label>
+
+      <label htmlFor="company">EMPRESA *</label>
+      <input
+        id="company"
+        placeholder="Sua empresa incrivel"
+        value={company}
+        onChange={event => setCompany(event.target.value)}
+      />
+
+      <label htmlFor="company">
+        TECNOLOGIAS * <span>(separadas por virgula)</span>
+      </label>
+      <input
+        id="techs"
+        placeholder="Quais tecnologias usam?"
+        value={techs}
+        onChange={event => setTechs(event.target.value)}
+      />
+
+      <label htmlFor="price">
+        VALOR DA DIARIA * <span>(em branco para gratuito)</span>
+      </label>
+      <input
+        id="price"
+        placeholder="Valor cobrado por dia"
+        value={price}
+        onChange={event => setPrice(event.target.value)}
+      />
+
+      <button type="submit" className="btn">
+        Cadastrar
+      </button>
+    </form>
+  );
+}
+
+// ------------------------------------------------------------
+
+'styles.css' da pasta 'New':
+
+label#thumbnail {
+  margin-bottom: 20px;
+  border: 1px dashed #ddd;
+  background-size: cover;
+  cursor: pointer;
+  height: 160px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+label#thumbnail input {
+  display: none;
+}
+
+label#thumbnail.has-thumbnail {
+  border: 0;
+}
+
+label#thumbnail.has-thumbnail img {
+  display: none;
+}
+
+// ------------------------------------------------------------
+
+Enviar aas informacoes para o backend
+
+importar a api
+
+colocar async no handleSubmit
+
+
+'index.js' da pasta 'New':
+
+import React, { useState, useMemo } from "react";
+import api from "../../services/api";
+
+import camera from "../../assets/camera.svg";
+
+import "./styles.css";
+
+export default function New({ history }) {
+  const [thumbnail, setThumbnail] = useState(null);
+  const [company, setCompany] = useState("");
+  const [techs, setTechs] = useState("");
+  const [price, setPrice] = useState("");
+
+  // Toda vez que a imagem da preview mudar, vai usar o useMemo, porque ele remonta sempre quando recebe um novo valor na variavel
+  const preview = useMemo(() => {
+    return thumbnail ? URL.createObjectURL(thumbnail) : null; // Vai criar uma url pra uma variavel temporaria, para a imagem
+  }, [thumbnail]);
+
+  // Aqui eh o formato Multipart Form
+  // E previnir o submit para nao levar pra outro lugar
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const data = new FormData();
+    const user_id = localStorage.getItem("user"); // Pegando o id do user no localStorage
+
+    data.append("thumbnail", thumbnail);
+    data.append("company", company);
+    data.append("techs", techs);
+    data.append("price", price);
+
+    await api.post("/spots", data, {
+      headers: { user_id } // Ta enviando o user_id que foi pegado la do localStorage, e colocando no headers
+    });
+
+    history.push("/dashboard"); // Enviar para a pagina dashboard, tem que passar o history como parametro da funcao da pagina
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label
+        id="thumbnail"
+        style={{ backgroundImage: `url(${preview})` }}
+        className={thumbnail ? "has-thumbnail" : ""} // Classe condicional, a condicao vai estar no css, Se tiver uma thumbnail, vai tirar a borda e tirar a img da camera.
+      >
+        <input
+          type="file"
+          onChange={event => setThumbnail(event.target.files[0])} // Quando colocar um arquivo aqui, ele vai para o thumbnail, ai o preview vai ver se existe uma thumnail, e vai montar uma url temporaria para essa thumbnail, e colocar o preview como background do label, o input ta dentro do label entao vai ficar tudo junto
+        />
+        <img src={camera} alt="Select img" />
+      </label>
+
+      <label htmlFor="company">EMPRESA *</label>
+      <input
+        id="company"
+        placeholder="Sua empresa incrivel"
+        value={company}
+        onChange={event => setCompany(event.target.value)}
+      />
+
+      <label htmlFor="company">
+        TECNOLOGIAS * <span>(separadas por virgula)</span>
+      </label>
+      <input
+        id="techs"
+        placeholder="Quais tecnologias usam?"
+        value={techs}
+        onChange={event => setTechs(event.target.value)}
+      />
+
+      <label htmlFor="price">
+        VALOR DA DIARIA * <span>(em branco para gratuito)</span>
+      </label>
+      <input
+        id="price"
+        placeholder="Valor cobrado por dia"
+        value={price}
+        onChange={event => setPrice(event.target.value)}
+      />
+
+      <button type="submit" className="btn">
+        Cadastrar
+      </button>
+    </form>
+  );
+}
+
+==================================================================
